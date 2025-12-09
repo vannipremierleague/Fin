@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Health | Smart Budget</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="glass-header">
+            <div class="logo">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>FinHealth</span>
+            </div>
+            <nav class="nav-controls">
+                <button class="theme-toggle" id="theme-btn" aria-label="Toggle Theme">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <button class="nav-btn active">Dashboard</button>
+                <button class="nav-btn">Planning</button>
+            </nav>
+        </header>
+
+        <main>
+            <section class="hero-section">
+                <h1>Money Health Score</h1>
+                <div class="health-display">
+                    <div class="score-circle">
+                        <span id="health-score">--</span>
+                        <small>/ 100</small>
+                    </div>
+                </div>
+                <p id="health-message" class="subtext">Enter your details to calculate.</p>
+
+                <!-- Breakdown Bar -->
+                <div class="breakdown-container">
+                    <div class="breakdown-labels">
+                        <span>Needs (Fixed)</span>
+                        <span>Wants (Variable)</span>
+                        <span>Savings</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="bar-needs" class="bar-segment needs"></div>
+                        <div id="bar-wants" class="bar-segment wants"></div>
+                        <div id="bar-savings" class="bar-segment savings"></div>
+                    </div>
+                </div>
+
+                <!-- Improvements Section -->
+                <div id="tips-container" class="tips-container hidden">
+                    <h3><i class="fa-solid fa-lightbulb"></i> Smart Tips</h3>
+                    <ul id="tips-list"></ul>
+                </div>
+            </section>
+
+            <section class="grid-layout">
+                <!-- Assets & Liabilities Card -->
+                <div class="card glass-card" style="grid-column: 1 / -1;">
+                    <h2><i class="fa-solid fa-sack-dollar"></i> Assets & Liabilities</h2>
+
+                    <!-- Investment Section -->
+                    <div class="input-group">
+                        <label>Current Investment Portfolio Value (₹) <span style="color:red">*</span></label>
+                        <input type="number" id="inv-portfolio" placeholder="0">
+                        <div class="preset-container">
+                            <button class="preset-btn" data-target="inv-portfolio" data-value="50000">₹50K</button>
+                            <button class="preset-btn" data-target="inv-portfolio" data-value="100000">₹1L</button>
+                            <button class="preset-btn" data-target="inv-portfolio" data-value="500000">₹5L</button>
+                            <button class="preset-btn" data-target="inv-portfolio" data-value="1000000">₹10L</button>
+                            <button class="preset-btn" data-target="inv-portfolio" data-value="2500000">₹25L</button>
+                            <button class="preset-btn" data-target="inv-portfolio" data-value="5000000">₹50L</button>
+                            <button class="preset-btn" data-target="inv-portfolio" data-value="10000000">₹1Cr</button>
+                        </div>
+                        <small
+                            style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 5px; display: block;">
+                            Include MF, stocks, PPF, FD, etc.
+                        </small>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Own House/Property?</label>
+                        <!-- Using a simple toggle-like button for now or just a select -->
+                        <select id="property-status"
+                            style="width: 100%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 8px; color: white; font-family: var(--font-main);">
+                            <option value="no">No</option>
+                            <option value="yes">Yes</option>
+                        </select>
+                    </div>
+
+                    <hr style="border: 0; border-top: 1px solid var(--glass-border); margin: 2rem 0;">
+
+                    <!-- Debt Section -->
+                    <h2><i class="fa-solid fa-credit-card"></i> Debt Details (Optional)</h2>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label>Outstanding Principal (₹) <span style="color:red">*</span></label>
+                            <input type="number" id="debt-principal" placeholder="3000000">
+                            <div class="preset-container">
+                                <button class="preset-btn" data-target="debt-principal" data-value="100000">₹1L</button>
+                                <button class="preset-btn" data-target="debt-principal" data-value="500000">₹5L</button>
+                                <button class="preset-btn" data-target="debt-principal"
+                                    data-value="1000000">₹10L</button>
+                                <button class="preset-btn" data-target="debt-principal"
+                                    data-value="2500000">₹25L</button>
+                                <button class="preset-btn" data-target="debt-principal"
+                                    data-value="5000000">₹50L</button>
+                            </div>
+                            <small
+                                style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 5px; display: block;">
+                                Debt details help us provide better payoff strategies
+                            </small>
+                        </div>
+                        <div class="input-group">
+                            <label>Interest Rate (% p.a.) <span style="color:red">*</span></label>
+                            <input type="number" id="debt-rate" placeholder="9">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card glass-card">
+                    <h2><i class="fa-solid fa-wallet"></i> Incomes (Before Tax)</h2>
+
+                    <div class="input-group">
+                        <label>Salary & Earned Income</label>
+                        <div class="input-group-row">
+                            <input type="number" id="inc-salary" placeholder="0">
+                            <select class="freq-select" id="freq-salary">
+                                <option value="12">/ Year</option>
+                                <option value="1">/ Month</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Pension & Social Security</label>
+                        <div class="input-group-row">
+                            <input type="number" id="inc-pension" placeholder="0">
+                            <select class="freq-select" id="freq-pension">
+                                <option value="12">/ Year</option>
+                                <option value="1">/ Month</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Investments & Savings <small>(interest, dividends, rental)</small></label>
+                        <div class="input-group-row">
+                            <input type="number" id="inc-invest" placeholder="0">
+                            <select class="freq-select" id="freq-invest">
+                                <option value="12">/ Year</option>
+                                <option value="1">/ Month</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Other Income <small>(gift, alimony, tax return)</small></label>
+                        <div class="input-group-row">
+                            <input type="number" id="inc-other" placeholder="0">
+                            <select class="freq-select" id="freq-other">
+                                <option value="12">/ Year</option>
+                                <option value="1">/ Month</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Income Tax Rate (%) <small>federal + state + local</small></label>
+                        <input type="number" id="inc-tax" placeholder="28" value="28">
+                    </div>
+
+                    <!-- Chart Section Moved Here -->
+                    <div class="chart-container"
+                        style="position: relative; height: 250px; width: 100%; margin-top: 2rem;">
+                        <h3>Expense Analysis</h3>
+                        <canvas id="expenseChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card glass-card">
+                    <h2><i class="fa-solid fa-fire"></i> Expenses</h2>
+
+                    <!-- Housing & Utilities -->
+                    <h4 class="section-title">Housing & Utilities</h4>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label>Mortgage</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-mortgage" placeholder="0">
+                                <select class="freq-select" id="freq-mortgage">
+                                    <option value="1">/ Month</option>
+                                    <option value="12">/ Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Property Tax</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-propertytax" placeholder="0">
+                                <select class="freq-select" id="freq-propertytax">
+                                    <option value="12">/ Year</option>
+                                    <option value="1">/ Month</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Rental</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-rental" placeholder="1400" data-default="1400">
+                                <select class="freq-select" id="freq-rental">
+                                    <option value="1">/ Month</option>
+                                    <option value="12">/ Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Insurance <small>(home/renters)</small></label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-insurance" placeholder="200" data-default="200">
+                                <select class="freq-select" id="freq-insurance">
+                                    <option value="12">/ Year</option>
+                                    <option value="1">/ Month</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>HOA/Co-Op Fee</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-hoa" placeholder="0">
+                                <select class="freq-select" id="freq-hoa">
+                                    <option value="12">/ Year</option>
+                                    <option value="1">/ Month</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Home Maintenance</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-home-maint" placeholder="0">
+                                <select class="freq-select" id="freq-home-maint">
+                                    <option value="1">/ Month</option>
+                                    <option value="12">/ Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Utilities <small>(elect, gas, water, net)</small></label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-utilities-home" placeholder="250" data-default="250">
+                                <select class="freq-select" id="freq-utilities-home">
+                                    <option value="1">/ Month</option>
+                                    <option value="12">/ Year</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transportation -->
+                    <h4 class="section-title">Transportation</h4>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label>Auto Loan</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-auto-loan" placeholder="250" data-default="250">
+                                <select class="freq-select" id="freq-auto-loan">
+                                    <option value="1">/ Month</option>
+                                    <option value="12">/ Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Auto Insurance</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-auto-ins" placeholder="700" data-default="700">
+                                <select class="freq-select" id="freq-auto-ins">
+                                    <option value="12">/ Year</option>
+                                    <option value="1">/ Month</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Gasoline</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-gas" placeholder="100" data-default="100">
+                                <select class="freq-select" id="freq-gas">
+                                    <option value="1">/ Month</option>
+                                    <option value="12">/ Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Auto Maintenance</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-auto-maint" placeholder="600" data-default="600">
+                                <select class="freq-select" id="freq-auto-maint">
+                                    <option value="12">/ Year</option>
+                                    <option value="1">/ Month</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Parking/Tolls</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-parking" placeholder="20" data-default="20">
+                                <select class="freq-select" id="freq-parking">
+                                    <option value="1">/ Month</option>
+                                    <option value="12">/ Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Other Transport</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-transport-other" placeholder="0">
+                                <select class="freq-select" id="freq-transport-other">
+                                    <option value="1">/ Month</option>
+                                    <option value="12">/ Year</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Other Debt -->
+                    <h4 class="section-title">Other Debt & Loan Payments</h4>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label>Credit Card <small>(recurring balance only)</small></label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-creditcard" placeholder="0">
+                                <select class="freq-select" id="freq-creditcard">
+                                    <option value="1">/ Month</option>
+                                    <option value="12">/ Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Student Loan</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-student" placeholder="250" data-default="250">
+                                <select class="freq-select" id="freq-student">
+                                    <option value="1">/ Month</option>
+                                    <option value="12">/ Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Other Loans</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-loans-other" placeholder="0">
+                                <select class="freq-select" id="freq-loans-other">
+                                    <option value="1">/ Month</option>
+                                    <option value="12">/ Year</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Living Expenses -->
+                    <h4 class="section-title">Living Expenses</h4>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label>Food</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-food" placeholder="400" data-default="400">
+                                <select class="freq-select" id="freq-food">
+                                    <option value="1">/ Month</option>
+                                    <option value="12">/ Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Clothing</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-clothing" placeholder="100" data-default="100">
+                                <select class="freq-select" id="freq-clothing">
+                                    <option value="1">/ Month</option>
+                                    <option value="12">/ Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Household Supplies</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-supplies" placeholder="100" data-default="100">
+                                <select class="freq-select" id="freq-supplies">
+                                    <option value="1">/ Month</option>
+                                    <option value="12">/ Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Meals Out</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-meals" placeholder="200" data-default="200">
+                                <select class="freq-select" id="freq-meals">
+                                    <option value="1">/ Month</option>
+                                    <option value="12">/ Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Other <small>(laundry, barber, etc)</small></label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-living-other" placeholder="200" data-default="200">
+                                <select class="freq-select" id="freq-living-other">
+                                    <option value="1">/ Month</option>
+                                    <option value="12">/ Year</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Healthcare -->
+                    <h4 class="section-title">Healthcare</h4>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label>Medical Insurance</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-med-ins" placeholder="0">
+                                <select class="freq-select" id="freq-med-ins">
+                                    <option value="1">/ Month</option>
+                                    <option value="12">/ Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Medical Spending <small>(copay, drugs)</small></label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-med-spend" placeholder="200" data-default="200">
+                                <select class="freq-select" id="freq-med-spend">
+                                    <option value="1">/ Month</option>
+                                    <option value="12">/ Year</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Children & Education -->
+                    <h4 class="section-title">Children & Education</h4>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label>Child & Personal Care</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-child-care" placeholder="0">
+                                <select class="freq-select" id="freq-child-care">
+                                    <option value="1">/ Month</option>
+                                    <option value="12">/ Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Tuition & Supplies</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-tuition" placeholder="0">
+                                <select class="freq-select" id="freq-tuition">
+                                    <option value="1">/ Month</option>
+                                    <option value="12">/ Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Child Support Payments</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-child-support" placeholder="0">
+                                <select class="freq-select" id="freq-child-support">
+                                    <option value="1">/ Month</option>
+                                    <option value="12">/ Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Other <small>(books, devices)</small></label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-child-other" placeholder="100" data-default="100">
+                                <select class="freq-select" id="freq-child-other">
+                                    <option value="1">/ Month</option>
+                                    <option value="12">/ Year</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Savings & Investments -->
+                    <h4 class="section-title">Savings & Investments</h4>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label>401k & IRA <small>(before tax)</small></label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-401k" placeholder="10000" data-default="10000">
+                                <select class="freq-select" id="freq-401k">
+                                    <option value="12">/ Year</option>
+                                    <option value="1">/ Month</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>College Saving</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-college" placeholder="0">
+                                <select class="freq-select" id="freq-college">
+                                    <option value="12">/ Year</option>
+                                    <option value="1">/ Month</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Investments <small>(stocks, real estate)</small></label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-invest-contrib" placeholder="0">
+                                <select class="freq-select" id="freq-invest-contrib">
+                                    <option value="12">/ Year</option>
+                                    <option value="1">/ Month</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Emergency Fund & Other</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-emergency" placeholder="0">
+                                <select class="freq-select" id="freq-emergency">
+                                    <option value="1">/ Month</option>
+                                    <option value="12">/ Year</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Miscellaneous -->
+                    <h4 class="section-title">Miscellaneous</h4>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label>Pet</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-pet" placeholder="200" data-default="200">
+                                <select class="freq-select" id="freq-pet">
+                                    <option value="1">/ Month</option>
+                                    <option value="12">/ Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Gifts & Donations</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-gifts" placeholder="300" data-default="300">
+                                <select class="freq-select" id="freq-gifts">
+                                    <option value="12">/ Year</option>
+                                    <option value="1">/ Month</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Hobbies & Sports</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-hobbies" placeholder="100" data-default="100">
+                                <select class="freq-select" id="freq-hobbies">
+                                    <option value="1">/ Month</option>
+                                    <option value="12">/ Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Entertainment</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-entertainment" placeholder="100" data-default="100">
+                                <select class="freq-select" id="freq-entertainment">
+                                    <option value="1">/ Month</option>
+                                    <option value="12">/ Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Travel & Vacation</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-vacation" placeholder="2000" data-default="2000">
+                                <select class="freq-select" id="freq-vacation">
+                                    <option value="12">/ Year</option>
+                                    <option value="1">/ Month</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Other</label>
+                            <div class="input-group-row">
+                                <input type="number" id="exp-misc-final" placeholder="100" data-default="100">
+                                <select class="freq-select" id="freq-misc-final">
+                                    <option value="1">/ Month</option>
+                                    <option value="12">/ Year</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
